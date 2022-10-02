@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package pad.services.catalogue;
+
+import "google/protobuf/empty.proto";
+
+service Catalogue {
+  rpc AddListing(Listing) returns (google.protobuf.Empty) {}
+  rpc GetAllListings(google.protobuf.Empty) returns (GetListingsResponse) {}
+}
+
+message AddListingRequest {
+  Listing listing = 1;
+}
+
+message GetListingsResponse {
+  repeated Listing listing = 1;
+}
+
+message Listing {
+  int32 place_holder = 1;
+}
