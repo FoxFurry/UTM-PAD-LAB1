@@ -1,3 +1,3 @@
-module github.com/FoxFurry/PAD
+module pad
 
-go 1.18
+go 1.19
