@@ -1,7 +1,7 @@
 {
-  "db_name": "monger",
-  "db_host": "kubernetes.docker.internal",
+  "db_type": "mysql",
+  "db_name": "catalogue",
+  "db_addr": "localhost:3306",
   "db_user": "root",
-  "db_pass": "temp",
-  "db_port": 3309
+  "db_pass": "temp"
 }
