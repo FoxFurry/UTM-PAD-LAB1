@@ -4,13 +4,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net"
 	"os"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 	"pad/services/catalogue/internal/config"
 	"pad/services/catalogue/internal/server"
 	"pad/services/catalogue/internal/store"
+	catalogue "pad/services/catalogue/proto"
 	"pad/services/common/database"
 )
 
@@ -30,37 +33,45 @@ func main() {
 	}
 
 	if *cfgFlag == "" {
-		fmt.Fprintf(os.Stderr, "cfgFlag is mandatory for execution\n")
-		os.Exit(1)
+		osError("cfgFlag is mandatory for execution\n")
 	}
 
 	viper.SetConfigFile(*cfgFlag)
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to read cfgFlag: %v\n", err)
-		os.Exit(1)
+		osError("failed to read cfgFlag: %v\n", err)
 	}
 
 	cfg := config.Config{}
 	if err := viper.Unmarshal(&cfg); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to read config: %v\n", err)
-		os.Exit(1)
+		osError("failed to read config: %v\n", err)
 	}
 
 	ctx := context.Background()
 
 	db, err := database.InitDB(ctx, mysql.Config{
-		DBName: cfg.Name,
-		User:   cfg.User,
-		Passwd: cfg.Pass,
-		Addr:   cfg.Addr,
+		DBName: cfg.DBName,
+		User:   cfg.DBUser,
+		Passwd: cfg.DBPass,
+		Addr:   cfg.DBAddr,
 	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to initialize database connection: %v\n", err)
-		os.Exit(1)
+		osError("failed to initialize database connection: %v\n", err)
 	}
 
 	srv := server.NewCatalogueServer(store.NewCatalogueStore(db))
 
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", cfg.GRPCPort))
+	if err != nil {
+		osError("failed to listen to tcp server: %v", err)
+	}
+
+	grpcServer := grpc.NewServer()
+
+	catalogue.RegisterCatalogueServer(grpcServer, srv)
+
+	if err := grpcServer.Serve(grpcListener); err != nil {
+		osError("failed to run grpc server: %v", err)
+	}
 }
 
 func usage() {
@@ -73,4 +84,9 @@ func usage() {
 	)
 
 	flags.PrintDefaults()
+}
+
+func osError(format string, opts ...any) {
+	fmt.Fprintf(os.Stderr, format, opts...)
+	os.Exit(1)
 }
