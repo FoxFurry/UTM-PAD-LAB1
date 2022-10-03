@@ -1,9 +1,10 @@
-package config
+package database
 
-type Config struct {
-	DBName string `mapstructure:"db_name"`
-	DBHost string `mapstructure:"db_host"`
-	DBUser string `mapstructure:"db_user"`
-	DBPass string `mapstructure:"db_pass"`
-	DBPort string `mapstructure:"db_port"`
+type DBConfig struct {
+	Type string `mapstructure:"db_type"`
+	Name string `mapstructure:"db_name"`
+	Host string `mapstructure:"db_host"`
+	User string `mapstructure:"db_user"`
+	Pass string `mapstructure:"db_pass"`
+	Port string `mapstructure:"db_port"`
 }
