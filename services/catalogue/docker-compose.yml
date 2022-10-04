@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  server:
+    container_name: "catalogue_server"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "22000:22000"
+    environment:
+      - GRPC_PORT
+      - DB_TYPE
+      - DB_NAME
+      - DB_ADDR
+      - DB_USER
+      - DB_PASS
+  db:
+    container_name: "catalogue_db"
+    command: --default-authentication-plugin=mysql_native_password
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=$DB_NAME
+      - MYSQL_ROOT_PASSWORD=$DB_PASS
