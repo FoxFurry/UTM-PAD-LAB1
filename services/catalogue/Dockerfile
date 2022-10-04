@@ -1,16 +1,8 @@
-FROM --platform=linux/amd64 golang:1.18-alpine
+FROM --platform=linux/amd64 alpine
 
-WORKDIR /app
-
-COPY go.mod ./
-COPY go.sum ./
-
-RUN go mod download
-
-COPY . ./
-
-RUN go build ./... -o /catalogue
-
+COPY build/catalogue /bin/catalogue
+COPY config.json /bin/config.json
 EXPOSE 22000
 
-CMD [ "/catalogue" ]
+RUN ["chmod", "+x", "/bin/catalogue"]
+CMD ["/bin/catalogue","--config=/bin/config.json"]
