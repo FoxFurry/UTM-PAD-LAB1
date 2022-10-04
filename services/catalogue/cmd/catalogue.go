@@ -1,15 +1,17 @@
-package cmd
+package main
 
 import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"os"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"pad/services/catalogue/internal/config"
 	"pad/services/catalogue/internal/server"
 	"pad/services/catalogue/internal/store"
@@ -65,10 +67,13 @@ func main() {
 		osError("failed to listen to tcp server: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	var opts []grpc.ServerOption
+	grpcServer := grpc.NewServer(opts...)
 
 	catalogue.RegisterCatalogueServer(grpcServer, srv)
+	reflection.Register(grpcServer)
 
+	log.Println("Starting the server")
 	if err := grpcServer.Serve(grpcListener); err != nil {
 		osError("failed to run grpc server: %v", err)
 	}
