@@ -62,7 +62,7 @@ func main() {
 
 	srv := server.NewCatalogueServer(store.NewCatalogueStore(db))
 
-	grpcListener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", cfg.GRPCPort))
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", cfg.GRPCPort))
 	if err != nil {
 		osError("failed to listen to tcp server: %v", err)
 	}
