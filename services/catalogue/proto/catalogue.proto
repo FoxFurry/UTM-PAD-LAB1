@@ -16,7 +16,7 @@ message AddListingRequest {
 }
 
 message GetListingsResponse {
-  repeated Listing listing = 1;
+  repeated Listing listings = 1;
 }
 
 message Listing {
