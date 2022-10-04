@@ -9,7 +9,7 @@ services:
     depends_on:
       - db
     ports:
-      - '22000:22000'
+      - "22000:22000"
     environment:
       - GRPC_PORT
       - DB_TYPE
@@ -26,7 +26,3 @@ services:
     environment:
       - MYSQL_DATABASE=$DB_NAME
       - MYSQL_ROOT_PASSWORD=$DB_PASS
-    volumes:
-      - mysql-saas:/var/lib/mysql
-volumes:
-  mysql-saas:
