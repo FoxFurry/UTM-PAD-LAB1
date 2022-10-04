@@ -1,4 +1,4 @@
-.PHONY: proto-generate build run run-docker
+.PHONY: proto-generate build run run-db run-docker run-local
 
 proto-generate:
 	protoc \
@@ -8,10 +8,16 @@ proto-generate:
 	proto/catalogue.proto
 
 build:
-	GOOS=linux GOARCH=amd64 go build -o build/catalogue cmd/catalogue.go
+	GOOS=linux GOARCH=amd64 go build -ldflags '-extldflags "-static"' -o build/catalogue cmd/catalogue.go
+	chmod +x build/catalogue
 
 run:
 	go run cmd/catalogue.go --config=./config.json
 
+run-db:
+	docker compose up --build -d db
+
 run-docker: build
-	docker compose up
+	docker compose up --build
+
+run-local: run-db run
