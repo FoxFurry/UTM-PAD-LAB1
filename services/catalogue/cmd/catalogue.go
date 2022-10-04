@@ -8,8 +8,8 @@ import (
 	"net"
 	"os"
 
+	"github.com/caarlos0/env/v6"
 	"github.com/go-sql-driver/mysql"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"pad/services/catalogue/internal/config"
@@ -22,7 +22,6 @@ import (
 var (
 	flags = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
-	cfgFlag  = flags.String("config", "", "File containing configuration for. Find more about it on official github page")
 	helpFlag = flags.Bool("help", false, "Test")
 )
 
@@ -34,18 +33,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *cfgFlag == "" {
-		osError("cfgFlag is mandatory for execution\n")
-	}
-
-	viper.SetConfigFile(*cfgFlag)
-	if err := viper.ReadInConfig(); err != nil {
-		osError("failed to read cfgFlag: %v\n", err)
-	}
-
 	cfg := config.Config{}
-	if err := viper.Unmarshal(&cfg); err != nil {
-		osError("failed to read config: %v\n", err)
+	if err := env.Parse(&cfg); err != nil {
+		osError("failed to load env: %v\n", err)
 	}
 
 	ctx := context.Background()

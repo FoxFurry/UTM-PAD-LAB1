@@ -12,7 +12,7 @@ build:
 	chmod +x build/catalogue
 
 run:
-	go run cmd/catalogue.go --config=./config.json
+	go run cmd/catalogue.go
 
 run-db:
 	docker compose up --build -d db
