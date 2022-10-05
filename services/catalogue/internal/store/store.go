@@ -1,18 +1,23 @@
 package store
 
 import (
-	"database/sql"
+	"context"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Catalogue interface {
+	GetAllListings(context.Context) ([]Listing, error)
+	AddListing(context.Context, *Listing) error
+	GetListingByTitle(context.Context, string) (*Listing, error)
 }
 
 type catalogue struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewCatalogueStore(db *sql.DB) Catalogue {
-	return catalogue{
+func NewCatalogueStore(db *sqlx.DB) Catalogue {
+	return &catalogue{
 		db: db,
 	}
 }

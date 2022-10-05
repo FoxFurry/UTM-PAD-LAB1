@@ -23,8 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CatalogueClient interface {
-	AddListing(ctx context.Context, in *Listing, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetAllListings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetListingsResponse, error)
+	AddListing(ctx context.Context, in *AddListingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetAllListings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllListingsResponse, error)
+	GetListingByTitle(ctx context.Context, in *GetListingByTitleRequest, opts ...grpc.CallOption) (*GetListingByTitleResponse, error)
 }
 
 type catalogueClient struct {
@@ -35,7 +36,7 @@ func NewCatalogueClient(cc grpc.ClientConnInterface) CatalogueClient {
 	return &catalogueClient{cc}
 }
 
-func (c *catalogueClient) AddListing(ctx context.Context, in *Listing, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *catalogueClient) AddListing(ctx context.Context, in *AddListingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/pad.services.catalogue.proto.Catalogue/AddListing", in, out, opts...)
 	if err != nil {
@@ -44,9 +45,18 @@ func (c *catalogueClient) AddListing(ctx context.Context, in *Listing, opts ...g
 	return out, nil
 }
 
-func (c *catalogueClient) GetAllListings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetListingsResponse, error) {
-	out := new(GetListingsResponse)
+func (c *catalogueClient) GetAllListings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllListingsResponse, error) {
+	out := new(GetAllListingsResponse)
 	err := c.cc.Invoke(ctx, "/pad.services.catalogue.proto.Catalogue/GetAllListings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *catalogueClient) GetListingByTitle(ctx context.Context, in *GetListingByTitleRequest, opts ...grpc.CallOption) (*GetListingByTitleResponse, error) {
+	out := new(GetListingByTitleResponse)
+	err := c.cc.Invoke(ctx, "/pad.services.catalogue.proto.Catalogue/GetListingByTitle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +67,9 @@ func (c *catalogueClient) GetAllListings(ctx context.Context, in *emptypb.Empty,
 // All implementations must embed UnimplementedCatalogueServer
 // for forward compatibility
 type CatalogueServer interface {
-	AddListing(context.Context, *Listing) (*emptypb.Empty, error)
-	GetAllListings(context.Context, *emptypb.Empty) (*GetListingsResponse, error)
+	AddListing(context.Context, *AddListingRequest) (*emptypb.Empty, error)
+	GetAllListings(context.Context, *emptypb.Empty) (*GetAllListingsResponse, error)
+	GetListingByTitle(context.Context, *GetListingByTitleRequest) (*GetListingByTitleResponse, error)
 	mustEmbedUnimplementedCatalogueServer()
 }
 
@@ -66,11 +77,14 @@ type CatalogueServer interface {
 type UnimplementedCatalogueServer struct {
 }
 
-func (UnimplementedCatalogueServer) AddListing(context.Context, *Listing) (*emptypb.Empty, error) {
+func (UnimplementedCatalogueServer) AddListing(context.Context, *AddListingRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddListing not implemented")
 }
-func (UnimplementedCatalogueServer) GetAllListings(context.Context, *emptypb.Empty) (*GetListingsResponse, error) {
+func (UnimplementedCatalogueServer) GetAllListings(context.Context, *emptypb.Empty) (*GetAllListingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllListings not implemented")
+}
+func (UnimplementedCatalogueServer) GetListingByTitle(context.Context, *GetListingByTitleRequest) (*GetListingByTitleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListingByTitle not implemented")
 }
 func (UnimplementedCatalogueServer) mustEmbedUnimplementedCatalogueServer() {}
 
@@ -86,7 +100,7 @@ func RegisterCatalogueServer(s grpc.ServiceRegistrar, srv CatalogueServer) {
 }
 
 func _Catalogue_AddListing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Listing)
+	in := new(AddListingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -98,7 +112,7 @@ func _Catalogue_AddListing_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/pad.services.catalogue.proto.Catalogue/AddListing",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CatalogueServer).AddListing(ctx, req.(*Listing))
+		return srv.(CatalogueServer).AddListing(ctx, req.(*AddListingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -121,6 +135,24 @@ func _Catalogue_GetAllListings_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Catalogue_GetListingByTitle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListingByTitleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CatalogueServer).GetListingByTitle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pad.services.catalogue.proto.Catalogue/GetListingByTitle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CatalogueServer).GetListingByTitle(ctx, req.(*GetListingByTitleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Catalogue_ServiceDesc is the grpc.ServiceDesc for Catalogue service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -135,6 +167,10 @@ var Catalogue_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllListings",
 			Handler:    _Catalogue_GetAllListings_Handler,
+		},
+		{
+			MethodName: "GetListingByTitle",
+			Handler:    _Catalogue_GetListingByTitle_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

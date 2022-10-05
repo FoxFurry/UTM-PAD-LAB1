@@ -7,18 +7,38 @@ option go_package = "pad/services/catalogue/proto/catalogue";
 import "google/protobuf/empty.proto";
 
 service Catalogue {
-  rpc AddListing(Listing) returns (google.protobuf.Empty) {}
-  rpc GetAllListings(google.protobuf.Empty) returns (GetListingsResponse) {}
+  rpc AddListing(AddListingRequest) returns (google.protobuf.Empty) {}
+  rpc GetAllListings(google.protobuf.Empty) returns (GetAllListingsResponse) {}
+  rpc GetListingByTitle(GetListingByTitleRequest) returns (GetListingByTitleResponse) {}
 }
 
 message AddListingRequest {
   Listing listing = 1;
 }
 
-message GetListingsResponse {
+message GetAllListingsResponse {
   repeated Listing listings = 1;
 }
 
+message GetListingByTitleRequest {
+  string title = 1;
+}
+
+message GetListingByTitleResponse {
+  Listing listing = 1;
+}
+
 message Listing {
-  int32 place_holder = 1;
+  string title = 1;
+  string description = 2;
+  string thumbnail_url = 3;
+}
+
+message ListingDetails {
+  string title = 1;
+  string description = 2;
+  string thumbnail_url = 3;
+
+  string author_name = 4;
+  string author_phone = 5;
 }
