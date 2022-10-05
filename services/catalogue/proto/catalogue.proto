@@ -34,11 +34,4 @@ message Listing {
   string thumbnail_url = 3;
 }
 
-message ListingDetails {
-  string title = 1;
-  string description = 2;
-  string thumbnail_url = 3;
 
-  string author_name = 4;
-  string author_phone = 5;
-}
