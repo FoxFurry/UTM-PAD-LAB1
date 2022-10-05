@@ -62,6 +62,7 @@ func (c *Catalogue) GetListingByTitle(ctx context.Context, req *catalogue.GetLis
 
 func listingStoreToProto(l []store.Listing) []*catalogue.Listing {
 	var buffer []*catalogue.Listing
+
 	for idx := range l {
 		buffer = append(buffer, &catalogue.Listing{
 			Title:        l[idx].Title,
@@ -69,5 +70,6 @@ func listingStoreToProto(l []store.Listing) []*catalogue.Listing {
 			ThumbnailUrl: l[idx].ThumbnailURL,
 		})
 	}
+
 	return buffer
 }
