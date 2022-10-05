@@ -25,7 +25,7 @@ func (c *Catalogue) AddListing(ctx context.Context, l *catalogue.AddListingReque
 		Title:        l.GetListing().Title,
 		Description:  l.GetListing().Description,
 		ThumbnailURL: l.GetListing().ThumbnailUrl,
-		AuthorID:     69, // TODO(Arthur): Change to actual author id
+		AuthorID:     69, // TODO(Arthur): Change to actual author id once auth header is added
 	})
 	if err != nil {
 		return nil, err
