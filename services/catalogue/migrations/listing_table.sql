@@ -1,0 +1,7 @@
+CREATE TABLE catalogue (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    thumbnail_url VARCHAR(255),
+    author_id INT UNSIGNED NOT NULL
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

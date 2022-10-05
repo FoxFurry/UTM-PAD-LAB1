@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -38,9 +37,9 @@ func main() {
 		osError("failed to load env: %v\n", err)
 	}
 
-	ctx := context.Background()
+	//ctx := context.Background()
 
-	db, err := database.InitDB(ctx, mysql.Config{
+	db, err := database.InitDB(mysql.Config{
 		DBName: cfg.DBName,
 		User:   cfg.DBUser,
 		Passwd: cfg.DBPass,

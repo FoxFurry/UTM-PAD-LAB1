@@ -1,12 +1,10 @@
 package database
 
 import (
-	"context"
-	"database/sql"
-
 	"github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
-func InitDB(ctx context.Context, cfg mysql.Config) (*sql.DB, error) {
-	return sql.Open("mysql", cfg.FormatDSN())
+func InitDB(cfg mysql.Config) (*sqlx.DB, error) {
+	return sqlx.Connect("mysql", cfg.FormatDSN())
 }
