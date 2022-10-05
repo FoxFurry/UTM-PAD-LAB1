@@ -40,10 +40,12 @@ func main() {
 	//ctx := context.Background()
 
 	db, err := database.InitDB(mysql.Config{
-		DBName: cfg.DBName,
-		User:   cfg.DBUser,
-		Passwd: cfg.DBPass,
-		Addr:   cfg.DBAddr,
+		DBName:               cfg.DBName,
+		User:                 cfg.DBUser,
+		Passwd:               cfg.DBPass,
+		Addr:                 cfg.DBAddr,
+		ParseTime:            true,
+		AllowNativePasswords: true,
 	})
 	if err != nil {
 		osError("failed to initialize database connection: %v\n", err)
