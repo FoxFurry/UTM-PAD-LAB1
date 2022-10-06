@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package pad.common;
+
+option go_package = "pad/services/common/proto/common";
+
+message Listing {
+  string title = 1;
+  string description = 2;
+  string thumbnail_url = 3;
+}
+

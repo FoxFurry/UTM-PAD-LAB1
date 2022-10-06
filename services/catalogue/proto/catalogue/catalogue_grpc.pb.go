@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.3
-// source: proto/catalogue.proto
+// source: proto/catalogue/catalogue.proto
 
 package catalogue
 
@@ -38,7 +38,7 @@ func NewCatalogueClient(cc grpc.ClientConnInterface) CatalogueClient {
 
 func (c *catalogueClient) AddListing(ctx context.Context, in *AddListingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/pad.services.catalogue.proto.Catalogue/AddListing", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pad.catalogue.proto.Catalogue/AddListing", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *catalogueClient) AddListing(ctx context.Context, in *AddListingRequest,
 
 func (c *catalogueClient) GetAllListings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllListingsResponse, error) {
 	out := new(GetAllListingsResponse)
-	err := c.cc.Invoke(ctx, "/pad.services.catalogue.proto.Catalogue/GetAllListings", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pad.catalogue.proto.Catalogue/GetAllListings", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *catalogueClient) GetAllListings(ctx context.Context, in *emptypb.Empty,
 
 func (c *catalogueClient) GetListingByTitle(ctx context.Context, in *GetListingByTitleRequest, opts ...grpc.CallOption) (*GetListingByTitleResponse, error) {
 	out := new(GetListingByTitleResponse)
-	err := c.cc.Invoke(ctx, "/pad.services.catalogue.proto.Catalogue/GetListingByTitle", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pad.catalogue.proto.Catalogue/GetListingByTitle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func _Catalogue_AddListing_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pad.services.catalogue.proto.Catalogue/AddListing",
+		FullMethod: "/pad.catalogue.proto.Catalogue/AddListing",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CatalogueServer).AddListing(ctx, req.(*AddListingRequest))
@@ -127,7 +127,7 @@ func _Catalogue_GetAllListings_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pad.services.catalogue.proto.Catalogue/GetAllListings",
+		FullMethod: "/pad.catalogue.proto.Catalogue/GetAllListings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CatalogueServer).GetAllListings(ctx, req.(*emptypb.Empty))
@@ -145,7 +145,7 @@ func _Catalogue_GetListingByTitle_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pad.services.catalogue.proto.Catalogue/GetListingByTitle",
+		FullMethod: "/pad.catalogue.proto.Catalogue/GetListingByTitle",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CatalogueServer).GetListingByTitle(ctx, req.(*GetListingByTitleRequest))
@@ -157,7 +157,7 @@ func _Catalogue_GetListingByTitle_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Catalogue_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pad.services.catalogue.proto.Catalogue",
+	ServiceName: "pad.catalogue.proto.Catalogue",
 	HandlerType: (*CatalogueServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -174,5 +174,5 @@ var Catalogue_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/catalogue.proto",
+	Metadata: "proto/catalogue/catalogue.proto",
 }

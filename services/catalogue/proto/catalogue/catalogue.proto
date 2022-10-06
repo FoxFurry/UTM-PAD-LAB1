@@ -1,10 +1,11 @@
 syntax = "proto3";
 
-package pad.services.catalogue.proto;
+package pad.catalogue.proto;
 
 option go_package = "pad/services/catalogue/proto/catalogue";
 
 import "google/protobuf/empty.proto";
+import "common.proto";
 
 service Catalogue {
   rpc AddListing(AddListingRequest) returns (google.protobuf.Empty) {}
@@ -13,11 +14,11 @@ service Catalogue {
 }
 
 message AddListingRequest {
-  Listing listing = 1;
+  pad.common.Listing listing = 1;
 }
 
 message GetAllListingsResponse {
-  repeated Listing listings = 1;
+  repeated pad.common.Listing listings = 1;
 }
 
 message GetListingByTitleRequest {
@@ -25,13 +26,7 @@ message GetListingByTitleRequest {
 }
 
 message GetListingByTitleResponse {
-  Listing listing = 1;
-}
-
-message Listing {
-  string title = 1;
-  string description = 2;
-  string thumbnail_url = 3;
+  pad.common.Listing listing = 1;
 }
 
 message ListingDetails {

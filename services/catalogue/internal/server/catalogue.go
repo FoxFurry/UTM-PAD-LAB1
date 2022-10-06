@@ -5,7 +5,8 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 	"pad/services/catalogue/internal/store"
-	catalogue "pad/services/catalogue/proto"
+	"pad/services/catalogue/proto/catalogue"
+	"pad/services/common/proto/common"
 )
 
 type Catalogue struct {
@@ -52,7 +53,7 @@ func (c *Catalogue) GetListingByTitle(ctx context.Context, req *catalogue.GetLis
 	}
 
 	return &catalogue.GetListingByTitleResponse{
-		Listing: &catalogue.Listing{
+		Listing: &common.Listing{
 			Title:        listing.Title,
 			Description:  listing.Description,
 			ThumbnailUrl: listing.ThumbnailURL,
@@ -60,11 +61,11 @@ func (c *Catalogue) GetListingByTitle(ctx context.Context, req *catalogue.GetLis
 	}, nil
 }
 
-func listingStoreToProto(l []store.Listing) []*catalogue.Listing {
-	var buffer []*catalogue.Listing
+func listingStoreToProto(l []store.Listing) []*common.Listing {
+	var buffer []*common.Listing
 
 	for idx := range l {
-		buffer = append(buffer, &catalogue.Listing{
+		buffer = append(buffer, &common.Listing{
 			Title:        l[idx].Title,
 			Description:  l[idx].Description,
 			ThumbnailUrl: l[idx].ThumbnailURL,
