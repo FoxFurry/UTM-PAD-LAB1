@@ -3,10 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/caarlos0/env/v6"
 	"pad/services/gateway/internal/config"
+	"pad/services/gateway/internal/server"
 )
 
 var (
@@ -29,6 +31,13 @@ func main() {
 	}
 
 	//ctx := context.Background()
+
+	srv := server.NewGatewayServer()
+
+	log.Println("Starting the server")
+	if err := srv.Start(fmt.Sprintf("127.0.0.1:%d", cfg.Port)); err != nil {
+		osError("failed to run gateway server: %v", err)
+	}
 }
 
 func usage() {
