@@ -11,6 +11,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"pad/services/cache/client"
 	"pad/services/catalogue/internal/config"
 	"pad/services/catalogue/internal/server"
 	"pad/services/catalogue/internal/store"
@@ -51,7 +52,12 @@ func main() {
 		osError("failed to initialize database connection: %v\n", err)
 	}
 
-	srv := server.NewCatalogueServer(store.NewCatalogueStore(db))
+	cacheClient, err := client.NewCacheClient(cfg.CacheAddress)
+	if err != nil {
+		osError("failed to connect to cache service: %v\n", err)
+	}
+
+	srv := server.NewCatalogueServer(store.NewCatalogueStore(db), cacheClient)
 
 	grpcListener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", cfg.GRPCPort))
 	if err != nil {
