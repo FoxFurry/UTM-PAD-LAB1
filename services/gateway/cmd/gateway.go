@@ -8,7 +8,7 @@ import (
 
 	"github.com/caarlos0/env/v6"
 	"pad/services/gateway/internal/config"
-	"pad/services/gateway/internal/server"
+	"pad/services/gateway/internal/http/server"
 )
 
 var (
