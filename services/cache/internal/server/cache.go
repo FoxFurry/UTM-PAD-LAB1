@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -29,7 +30,13 @@ func NewCacheServer() cache.CacheServer {
 
 func (c *Cache) AddListing(ctx context.Context, req *cache.AddListingRequest) (*emptypb.Empty, error) {
 	c.listings[byTitle(req.Listing.Title)] = req.GetListing()
-	c.listings[byID(req.GetId())] = req.GetListing()
+
+	log.Printf("cached by title: %s\n", req.Listing.Title)
+
+	if req.Id != 0 {
+		c.listings[byID(req.GetId())] = req.GetListing()
+		log.Printf("cached by id: %d\n", req.Id)
+	}
 
 	return &emptypb.Empty{}, nil
 }
