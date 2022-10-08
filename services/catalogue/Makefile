@@ -5,7 +5,7 @@ proto-generate:
 	--go_opt=paths=source_relative \
 	--go_out=. \
 	--go-grpc_out=. --go-grpc_opt=paths=source_relative \
-	proto/catalogue.proto
+	./services/catalogue/catalogue.proto
 
 build:
 	GOOS=linux GOARCH=amd64 go build -ldflags '-extldflags "-static"' -o build/catalogue cmd/catalogue.go

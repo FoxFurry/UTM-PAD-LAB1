@@ -8,15 +8,11 @@ import (
 	"os"
 
 	"github.com/caarlos0/env/v6"
-	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"pad/services/cache/client"
-	"pad/services/catalogue/internal/config"
-	"pad/services/catalogue/internal/server"
-	"pad/services/catalogue/internal/store"
-	"pad/services/catalogue/services/catalogue"
-	"pad/services/common/database"
+	"pad/services/cache/internal/config"
+	"pad/services/cache/internal/server"
+	"pad/services/cache/services/cache"
 )
 
 var (
@@ -38,26 +34,7 @@ func main() {
 		osError("failed to load env: %v\n", err)
 	}
 
-	//ctx := context.Background()
-
-	db, err := database.InitDB(mysql.Config{
-		DBName:               cfg.DBName,
-		User:                 cfg.DBUser,
-		Passwd:               cfg.DBPass,
-		Addr:                 cfg.DBAddr,
-		ParseTime:            true,
-		AllowNativePasswords: true,
-	})
-	if err != nil {
-		osError("failed to initialize database connection: %v\n", err)
-	}
-
-	cacheClient, err := client.NewCacheClient(cfg.CacheAddress)
-	if err != nil {
-		osError("failed to connect to cache service: %v\n", err)
-	}
-
-	srv := server.NewCatalogueServer(store.NewCatalogueStore(db), cacheClient)
+	srv := server.NewCacheServer()
 
 	grpcListener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", cfg.GRPCPort))
 	if err != nil {
@@ -67,7 +44,7 @@ func main() {
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 
-	catalogue.RegisterCatalogueServer(grpcServer, srv)
+	cache.RegisterCacheServer(grpcServer, srv)
 	reflection.Register(grpcServer)
 
 	log.Println("Starting the server")
