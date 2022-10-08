@@ -14,7 +14,7 @@ import (
 	"pad/services/catalogue/internal/config"
 	"pad/services/catalogue/internal/server"
 	"pad/services/catalogue/internal/store"
-	"pad/services/catalogue/proto/catalogue"
+	"pad/services/catalogue/services/catalogue"
 	"pad/services/common/database"
 )
 

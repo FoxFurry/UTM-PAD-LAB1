@@ -3,10 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"net"
 	"os"
 
 	"github.com/caarlos0/env/v6"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"pad/services/cache/internal/config"
+	"pad/services/cache/internal/server"
+	"pad/services/cache/services/cache"
 )
 
 var (
@@ -28,6 +34,23 @@ func main() {
 		osError("failed to load env: %v\n", err)
 	}
 
+	srv := server.NewCacheServer()
+
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", cfg.GRPCPort))
+	if err != nil {
+		osError("failed to listen to tcp server: %v", err)
+	}
+
+	var opts []grpc.ServerOption
+	grpcServer := grpc.NewServer(opts...)
+
+	cache.RegisterCacheServer(grpcServer, srv)
+	reflection.Register(grpcServer)
+
+	log.Println("Starting the server")
+	if err := grpcServer.Serve(grpcListener); err != nil {
+		osError("failed to run grpc server: %v", err)
+	}
 }
 
 func usage() {

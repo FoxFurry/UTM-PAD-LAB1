@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.3
-// source: proto/catalogue/catalogue.proto
+// source: services/catalogue/catalogue.proto
 
 package catalogue
 
@@ -174,5 +174,5 @@ var Catalogue_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/catalogue/catalogue.proto",
+	Metadata: "services/catalogue/catalogue.proto",
 }

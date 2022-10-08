@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.3
-// source: proto/cache/cache.proto
+// source: services/cache/cache.proto
 
 package cache
 
@@ -38,7 +38,7 @@ func NewCacheClient(cc grpc.ClientConnInterface) CacheClient {
 
 func (c *cacheClient) AddListing(ctx context.Context, in *AddListingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/pad.cache.proto.Cache/AddListing", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pad.services.cache.services.cache.Cache/AddListing", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *cacheClient) AddListing(ctx context.Context, in *AddListingRequest, opt
 
 func (c *cacheClient) GetListingByTitle(ctx context.Context, in *GetListingByTitleRequest, opts ...grpc.CallOption) (*GetListingByTitleResponse, error) {
 	out := new(GetListingByTitleResponse)
-	err := c.cc.Invoke(ctx, "/pad.cache.proto.Cache/GetListingByTitle", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pad.services.cache.services.cache.Cache/GetListingByTitle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *cacheClient) GetListingByTitle(ctx context.Context, in *GetListingByTit
 
 func (c *cacheClient) GetListingByID(ctx context.Context, in *GetListingByIDRequest, opts ...grpc.CallOption) (*GetListingByIDResponse, error) {
 	out := new(GetListingByIDResponse)
-	err := c.cc.Invoke(ctx, "/pad.cache.proto.Cache/GetListingByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pad.services.cache.services.cache.Cache/GetListingByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func _Cache_AddListing_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pad.cache.proto.Cache/AddListing",
+		FullMethod: "/pad.services.cache.services.cache.Cache/AddListing",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CacheServer).AddListing(ctx, req.(*AddListingRequest))
@@ -127,7 +127,7 @@ func _Cache_GetListingByTitle_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pad.cache.proto.Cache/GetListingByTitle",
+		FullMethod: "/pad.services.cache.services.cache.Cache/GetListingByTitle",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CacheServer).GetListingByTitle(ctx, req.(*GetListingByTitleRequest))
@@ -145,7 +145,7 @@ func _Cache_GetListingByID_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pad.cache.proto.Cache/GetListingByID",
+		FullMethod: "/pad.services.cache.services.cache.Cache/GetListingByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CacheServer).GetListingByID(ctx, req.(*GetListingByIDRequest))
@@ -157,7 +157,7 @@ func _Cache_GetListingByID_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Cache_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pad.cache.proto.Cache",
+	ServiceName: "pad.services.cache.services.cache.Cache",
 	HandlerType: (*CacheServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -174,5 +174,5 @@ var Cache_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/cache/cache.proto",
+	Metadata: "services/cache/cache.proto",
 }

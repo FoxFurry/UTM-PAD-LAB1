@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package pad.catalogue.proto;
 
-option go_package = "pad/services/catalogue/proto/catalogue";
+option go_package = "pad/services/catalogue/services/catalogue";
 
 import "google/protobuf/empty.proto";
 

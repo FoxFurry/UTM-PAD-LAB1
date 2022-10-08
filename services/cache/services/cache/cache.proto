@@ -1,11 +1,10 @@
 syntax = "proto3";
 
-package pad.cache.proto;
+package pad.services.cache.services.cache;
 
-option go_package = "pad/services/cache/proto/cache";
+option go_package = "pad/services/cache/services/cache";
 
 import "google/protobuf/empty.proto";
-import "common.proto";
 
 service Cache {
   rpc AddListing(AddListingRequest) returns (google.protobuf.Empty) {}
@@ -14,7 +13,7 @@ service Cache {
 }
 
 message AddListingRequest {
-  pad.common.Listing listing = 1;
+  Listing listing = 1;
   uint32 id = 2;
 }
 
@@ -23,7 +22,7 @@ message GetListingByTitleRequest {
 }
 
 message GetListingByTitleResponse {
-  pad.common.Listing listing = 1;
+  Listing listing = 1;
 }
 
 message GetListingByIDRequest {
@@ -31,5 +30,11 @@ message GetListingByIDRequest {
 }
 
 message GetListingByIDResponse {
-  pad.common.Listing listing = 1;
+  Listing listing = 1;
+}
+
+message Listing {
+  string title = 1;
+  string description = 2;
+  string thumbnail_url = 3;
 }
