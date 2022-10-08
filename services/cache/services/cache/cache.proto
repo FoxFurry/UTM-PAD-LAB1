@@ -1,24 +1,21 @@
 syntax = "proto3";
 
-package pad.catalogue.proto;
+package pad.cache.proto;
 
-option go_package = "pad/services/catalogue/proto/catalogue";
+option go_package = "pad/services/cache/proto/cache";
 
 import "google/protobuf/empty.proto";
 import "common.proto";
 
-service Catalogue {
+service Cache {
   rpc AddListing(AddListingRequest) returns (google.protobuf.Empty) {}
-  rpc GetAllListings(google.protobuf.Empty) returns (GetAllListingsResponse) {}
   rpc GetListingByTitle(GetListingByTitleRequest) returns (GetListingByTitleResponse) {}
+  rpc GetListingByID(GetListingByIDRequest) returns (GetListingByIDResponse) {}
 }
 
 message AddListingRequest {
   pad.common.Listing listing = 1;
-}
-
-message GetAllListingsResponse {
-  repeated pad.common.Listing listings = 1;
+  uint32 id = 2;
 }
 
 message GetListingByTitleRequest {
@@ -29,11 +26,10 @@ message GetListingByTitleResponse {
   pad.common.Listing listing = 1;
 }
 
-message ListingDetails {
-  string title = 1;
-  string description = 2;
-  string thumbnail_url = 3;
+message GetListingByIDRequest {
+  uint32 id = 1;
+}
 
-  string author_name = 4;
-  string author_phone = 5;
+message GetListingByIDResponse {
+  pad.common.Listing listing = 1;
 }

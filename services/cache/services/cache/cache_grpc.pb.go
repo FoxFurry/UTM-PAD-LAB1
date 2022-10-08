@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CacheClient interface {
+	AddListing(ctx context.Context, in *AddListingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetListingByTitle(ctx context.Context, in *GetListingByTitleRequest, opts ...grpc.CallOption) (*GetListingByTitleResponse, error)
 	GetListingByID(ctx context.Context, in *GetListingByIDRequest, opts ...grpc.CallOption) (*GetListingByIDResponse, error)
 }
@@ -34,9 +36,18 @@ func NewCacheClient(cc grpc.ClientConnInterface) CacheClient {
 	return &cacheClient{cc}
 }
 
+func (c *cacheClient) AddListing(ctx context.Context, in *AddListingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/pad.cache.proto.Cache/AddListing", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cacheClient) GetListingByTitle(ctx context.Context, in *GetListingByTitleRequest, opts ...grpc.CallOption) (*GetListingByTitleResponse, error) {
 	out := new(GetListingByTitleResponse)
-	err := c.cc.Invoke(ctx, "/pad.proto.Cache/GetListingByTitle", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pad.cache.proto.Cache/GetListingByTitle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +56,7 @@ func (c *cacheClient) GetListingByTitle(ctx context.Context, in *GetListingByTit
 
 func (c *cacheClient) GetListingByID(ctx context.Context, in *GetListingByIDRequest, opts ...grpc.CallOption) (*GetListingByIDResponse, error) {
 	out := new(GetListingByIDResponse)
-	err := c.cc.Invoke(ctx, "/pad.proto.Cache/GetListingByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pad.cache.proto.Cache/GetListingByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +67,7 @@ func (c *cacheClient) GetListingByID(ctx context.Context, in *GetListingByIDRequ
 // All implementations must embed UnimplementedCacheServer
 // for forward compatibility
 type CacheServer interface {
+	AddListing(context.Context, *AddListingRequest) (*emptypb.Empty, error)
 	GetListingByTitle(context.Context, *GetListingByTitleRequest) (*GetListingByTitleResponse, error)
 	GetListingByID(context.Context, *GetListingByIDRequest) (*GetListingByIDResponse, error)
 	mustEmbedUnimplementedCacheServer()
@@ -65,6 +77,9 @@ type CacheServer interface {
 type UnimplementedCacheServer struct {
 }
 
+func (UnimplementedCacheServer) AddListing(context.Context, *AddListingRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddListing not implemented")
+}
 func (UnimplementedCacheServer) GetListingByTitle(context.Context, *GetListingByTitleRequest) (*GetListingByTitleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListingByTitle not implemented")
 }
@@ -84,6 +99,24 @@ func RegisterCacheServer(s grpc.ServiceRegistrar, srv CacheServer) {
 	s.RegisterService(&Cache_ServiceDesc, srv)
 }
 
+func _Cache_AddListing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddListingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CacheServer).AddListing(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pad.cache.proto.Cache/AddListing",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CacheServer).AddListing(ctx, req.(*AddListingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Cache_GetListingByTitle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetListingByTitleRequest)
 	if err := dec(in); err != nil {
@@ -94,7 +127,7 @@ func _Cache_GetListingByTitle_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pad.proto.Cache/GetListingByTitle",
+		FullMethod: "/pad.cache.proto.Cache/GetListingByTitle",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CacheServer).GetListingByTitle(ctx, req.(*GetListingByTitleRequest))
@@ -112,7 +145,7 @@ func _Cache_GetListingByID_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pad.proto.Cache/GetListingByID",
+		FullMethod: "/pad.cache.proto.Cache/GetListingByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CacheServer).GetListingByID(ctx, req.(*GetListingByIDRequest))
@@ -124,9 +157,13 @@ func _Cache_GetListingByID_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Cache_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pad.proto.Cache",
+	ServiceName: "pad.cache.proto.Cache",
 	HandlerType: (*CacheServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddListing",
+			Handler:    _Cache_AddListing_Handler,
+		},
 		{
 			MethodName: "GetListingByTitle",
 			Handler:    _Cache_GetListingByTitle_Handler,
