@@ -5,4 +5,4 @@ build:
 	chmod +x build/catalogue
 
 run:
-	go run cmd/catalogue.go
+	go run cmd/gateway.go
