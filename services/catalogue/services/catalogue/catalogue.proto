@@ -10,6 +10,15 @@ service Catalogue {
   rpc AddListing(AddListingRequest) returns (google.protobuf.Empty) {}
   rpc GetAllListings(google.protobuf.Empty) returns (GetAllListingsResponse) {}
   rpc GetListingByTitle(GetListingByTitleRequest) returns (GetListingByTitleResponse) {}
+  rpc GetListingByID(GetListingByIDRequest) returns (GetListingByIDResponse) {}
+}
+
+message GetListingByIDRequest {
+  uint32 id = 1;
+}
+
+message GetListingByIDResponse {
+  Listing listing = 1;
 }
 
 message AddListingRequest {
