@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +46,7 @@ func (g *Gateway) CreateListing(ctx *gin.Context) {
 	var listing models.Listing
 
 	if err := ctx.BindJSON(&listing); err != nil {
+		log.Printf("received bad request: %v\n", err)
 		httperr.Handle(ctx, httperr.NewErrorBadRequest(err))
 		return
 	}
@@ -56,6 +58,7 @@ func (g *Gateway) CreateListing(ctx *gin.Context) {
 			ThumbnailUrl: listing.ThumbnailURL,
 		},
 	}); err != nil {
+		log.Printf("could not create listing: %v\n", err)
 		httperr.Handle(ctx, httperr.NewErrorInternal())
 		return
 	}
@@ -67,11 +70,15 @@ func (g *Gateway) CreateListing(ctx *gin.Context) {
 
 func (g *Gateway) GetListing(ctx *gin.Context) {
 	if id := ctx.Query("id"); id != "" {
+		log.Printf("listing queried by id\n")
+
 		uid, _ := strconv.ParseUint(id, 10, 32)
 		listing, err := g.catalogue.GetListingByID(ctx, &catalogue.GetListingByIDRequest{
 			Id: uint32(uid),
 		})
 		if err != nil {
+			log.Printf("could not get listing by id: %v\n", err)
+
 			httperr.Handle(ctx, httperr.NewErrorNotFound())
 			return
 		}
@@ -81,10 +88,14 @@ func (g *Gateway) GetListing(ctx *gin.Context) {
 	}
 
 	if title := ctx.Query("title"); title != "" {
+		log.Printf("listing queried by title\n")
+
 		listing, err := g.catalogue.GetListingByTitle(ctx, &catalogue.GetListingByTitleRequest{
 			Title: title,
 		})
 		if err != nil {
+			log.Printf("could not get listing by title: %v\n", err)
+
 			httperr.Handle(ctx, httperr.NewErrorNotFound())
 			return
 		}
@@ -92,6 +103,8 @@ func (g *Gateway) GetListing(ctx *gin.Context) {
 		httpresponse.RespondOK(ctx, listing.Listing)
 		return
 	}
+
+	log.Printf("GetListing called but no parameters provided\n")
 
 	httperr.Handle(ctx, httperr.NewErrorBadRequest(errGetParamMissing))
 }
