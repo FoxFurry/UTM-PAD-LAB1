@@ -29,6 +29,10 @@ func RespondAlreadyExists(c *gin.Context, err interface{}) {
 	respondWith(c, http.StatusConflict, nil, err)
 }
 
+func RespondBadRequest(c *gin.Context, err interface{}) {
+	respondWith(c, http.StatusBadRequest, nil, err)
+}
+
 func RespondOK(c *gin.Context, data interface{}) {
 	respondWith(c, http.StatusOK, data, nil)
 }

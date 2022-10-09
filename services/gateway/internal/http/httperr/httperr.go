@@ -1,7 +1,10 @@
 package httperr
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"pad/services/gateway/internal/http/httpresponse"
 )
 
 //---------------------------------------------------------------
@@ -65,6 +68,17 @@ func NewErrorInternal() error {
 
 //---------------------------------------------------------------
 
+//---------------------------------------------------------------
+type errorBadRequest struct {
+	baseError
+}
+
+func NewErrorBadRequest(err error) error {
+	return errorInternal{baseError{fmt.Sprintf("Bad request: %v", err)}}
+}
+
+//---------------------------------------------------------------
+
 func Handle(c *gin.Context, err interface{}) {
 	switch err.(type) {
 	case errorNotFound:
@@ -73,6 +87,8 @@ func Handle(c *gin.Context, err interface{}) {
 		httpresponse.RespondAlreadyExists(c, err)
 	case errorUnauthorized:
 		httpresponse.RespondUnauthorized(c, err)
+	case errorBadRequest:
+		httpresponse.RespondBadRequest(c, err)
 	default:
 		httpresponse.RespondInternalError(c, err)
 	}
