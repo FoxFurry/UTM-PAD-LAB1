@@ -31,11 +31,11 @@ func NewCacheServer() cache.CacheServer {
 func (c *Cache) AddListing(ctx context.Context, req *cache.AddListingRequest) (*emptypb.Empty, error) {
 	c.listings[byTitle(req.Listing.Title)] = req.GetListing()
 
-	log.Printf("cached by title: %s\n", req.Listing.Title)
+	log.Printf("succesfully cached listing with title %s\n", req.Listing.Title)
 
 	if req.Id != 0 {
 		c.listings[byID(req.GetId())] = req.GetListing()
-		log.Printf("cached by id: %d\n", req.Id)
+		log.Printf("succesfully cached listing by id %d\n", req.Id)
 	}
 
 	return &emptypb.Empty{}, nil
@@ -44,9 +44,11 @@ func (c *Cache) AddListing(ctx context.Context, req *cache.AddListingRequest) (*
 func (c *Cache) GetListingByID(ctx context.Context, req *cache.GetListingByIDRequest) (*cache.GetListingByIDResponse, error) {
 	listing, ok := c.listings[byID(req.GetId())]
 	if !ok {
+		log.Printf("listing with id %d not found\n", req.Id)
 		return nil, status.Error(codes.NotFound, "listing not found")
 	}
 
+	log.Printf("listing with id %d was found\n", req.Id)
 	return &cache.GetListingByIDResponse{
 		Listing: listing,
 	}, nil
@@ -55,9 +57,11 @@ func (c *Cache) GetListingByID(ctx context.Context, req *cache.GetListingByIDReq
 func (c *Cache) GetListingByTitle(ctx context.Context, req *cache.GetListingByTitleRequest) (*cache.GetListingByTitleResponse, error) {
 	listing, ok := c.listings[byTitle(req.GetTitle())]
 	if !ok {
+		log.Printf("listing with title %s not found\n", req.Title)
 		return nil, status.Error(codes.NotFound, "listing not found")
 	}
 
+	log.Printf("listing with title %s was found\n", req.Title)
 	return &cache.GetListingByTitleResponse{
 		Listing: listing,
 	}, nil
