@@ -88,6 +88,39 @@ func (c *Catalogue) GetListingByTitle(ctx context.Context, req *catalogue.GetLis
 	}, nil
 }
 
+func (c *Catalogue) GetListingByID(ctx context.Context, req *catalogue.GetListingByIDRequest) (*catalogue.GetListingByIDResponse, error) {
+	if cachedListing, err := c.cache.GetListingByID(ctx, &cache.GetListingByIDRequest{Id: req.GetId()}); err == nil {
+		log.Printf("found cached listing for id: %d\n", req.GetId())
+
+		return &catalogue.GetListingByIDResponse{
+			Listing: listingCacheToProto(cachedListing.Listing),
+		}, nil
+	}
+
+	log.Printf("cache for id %d not found, looking in db\n", req.GetId())
+
+	listing, err := c.datastore.GetListingByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	catalogueListing := &catalogue.Listing{
+		Title:        listing.Title,
+		Description:  listing.Description,
+		ThumbnailUrl: listing.ThumbnailURL,
+	}
+
+	if _, err := c.cache.AddListing(ctx, &cache.AddListingRequest{Listing: listingProtoToCache(catalogueListing)}); err != nil {
+		log.Printf("failed to cache listing: %v\n", err)
+		return nil, err
+	}
+	log.Printf("cached listing by id: %s\n", req.GetId())
+
+	return &catalogue.GetListingByIDResponse{
+		Listing: catalogueListing,
+	}, nil
+}
+
 func listingsStoreToProto(l []store.Listing) []*catalogue.Listing {
 	var buffer []*catalogue.Listing
 
