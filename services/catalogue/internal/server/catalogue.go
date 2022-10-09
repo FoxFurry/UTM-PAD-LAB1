@@ -26,9 +26,9 @@ func NewCatalogueServer(db store.Catalogue, cacheService cache.CacheClient) cata
 
 func (c *Catalogue) AddListing(ctx context.Context, req *catalogue.AddListingRequest) (*emptypb.Empty, error) {
 	err := c.datastore.AddListing(ctx, &store.Listing{
-		Title:        req.GetListing().Title,
-		Description:  req.GetListing().Description,
-		ThumbnailURL: req.GetListing().ThumbnailUrl,
+		Title:        req.GetListing().GetTitle(),
+		Description:  req.GetListing().GetDescription(),
+		ThumbnailURL: req.GetListing().GetThumbnailUrl(),
 		AuthorID:     69, // TODO(Arthur): Change to actual author id once auth header is added
 	})
 	if err != nil {
@@ -40,6 +40,7 @@ func (c *Catalogue) AddListing(ctx context.Context, req *catalogue.AddListingReq
 		return nil, err
 	}
 	log.Printf("cached listing by title: %s\n", req.GetListing().GetTitle())
+	log.Printf("added to db listing by title: %s\n", req.GetListing().GetTitle())
 
 	return &emptypb.Empty{}, nil
 }
@@ -50,24 +51,27 @@ func (c *Catalogue) GetAllListings(ctx context.Context, _ *emptypb.Empty) (*cata
 		return nil, err
 	}
 
+	log.Printf("returning %d listings\n", len(listings))
+
 	return &catalogue.GetAllListingsResponse{
 		Listings: listingsStoreToProto(listings),
 	}, nil
 }
 
 func (c *Catalogue) GetListingByTitle(ctx context.Context, req *catalogue.GetListingByTitleRequest) (*catalogue.GetListingByTitleResponse, error) {
-	if cachedListing, err := c.cache.GetListingByTitle(ctx, &cache.GetListingByTitleRequest{Title: req.Title}); err == nil {
-		log.Printf("found cached listing for title: %s\n", req.Title)
+	if cachedListing, err := c.cache.GetListingByTitle(ctx, &cache.GetListingByTitleRequest{Title: req.GetTitle()}); err == nil {
+		log.Printf("found cached listing for title: %s\n", req.GetTitle())
 
 		return &catalogue.GetListingByTitleResponse{
 			Listing: listingCacheToProto(cachedListing.Listing),
 		}, nil
 	}
 
-	log.Printf("cache for %s not found, looking in db\n", req.Title)
+	log.Printf("cache for title %s not found, looking in db\n", req.GetTitle())
 
 	listing, err := c.datastore.GetListingByTitle(ctx, req.GetTitle())
 	if err != nil {
+		log.Printf("title %s not found in database\n", req.GetTitle())
 		return nil, err
 	}
 
@@ -81,7 +85,7 @@ func (c *Catalogue) GetListingByTitle(ctx context.Context, req *catalogue.GetLis
 		log.Printf("failed to cache listing: %v\n", err)
 		return nil, err
 	}
-	log.Printf("cached listing by title: %s\n", req.Title)
+	log.Printf("cached listing by title: %s\n", req.GetTitle())
 
 	return &catalogue.GetListingByTitleResponse{
 		Listing: catalogueListing,
@@ -101,6 +105,7 @@ func (c *Catalogue) GetListingByID(ctx context.Context, req *catalogue.GetListin
 
 	listing, err := c.datastore.GetListingByID(ctx, req.GetId())
 	if err != nil {
+		log.Printf("id %d not found in database\n", req.GetId())
 		return nil, err
 	}
 
@@ -114,7 +119,7 @@ func (c *Catalogue) GetListingByID(ctx context.Context, req *catalogue.GetListin
 		log.Printf("failed to cache listing: %v\n", err)
 		return nil, err
 	}
-	log.Printf("cached listing by id: %s\n", req.GetId())
+	log.Printf("cached listing by id: %d\n", req.GetId())
 
 	return &catalogue.GetListingByIDResponse{
 		Listing: catalogueListing,
