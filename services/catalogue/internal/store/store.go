@@ -10,6 +10,7 @@ type Catalogue interface {
 	GetAllListings(context.Context) ([]Listing, error)
 	AddListing(context.Context, *Listing) error
 	GetListingByTitle(context.Context, string) (*Listing, error)
+	GetListingByID(context.Context, uint32) (*Listing, error)
 }
 
 type catalogue struct {

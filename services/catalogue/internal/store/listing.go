@@ -45,3 +45,13 @@ func (c *catalogue) GetListingByTitle(ctx context.Context, title string) (*Listi
 
 	return &buffer, nil
 }
+
+func (c *catalogue) GetListingByID(ctx context.Context, id uint32) (*Listing, error) {
+	var buffer Listing
+
+	if err := c.db.GetContext(ctx, &buffer, `SELECT * from listings WHERE id = ?`, id); err != nil {
+		return nil, err
+	}
+
+	return &buffer, nil
+}
