@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/caarlos0/env/v6"
+	"pad/services/catalogue/client"
 	"pad/services/gateway/internal/config"
 	"pad/services/gateway/internal/http/server"
 )
@@ -32,7 +33,12 @@ func main() {
 
 	//ctx := context.Background()
 
-	srv := server.NewGatewayServer()
+	catalogueClient, err := client.NewCatalogueClient(cfg.ServiceAddress)
+	if err != nil {
+		osError("failed to connect to catalogue server: %v", err)
+	}
+
+	srv := server.NewGatewayServer(catalogueClient)
 
 	log.Println("Starting the server")
 	if err := srv.Start(fmt.Sprintf("127.0.0.1:%d", cfg.Port)); err != nil {
