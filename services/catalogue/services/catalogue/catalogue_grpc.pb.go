@@ -26,6 +26,7 @@ type CatalogueClient interface {
 	AddListing(ctx context.Context, in *AddListingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAllListings(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllListingsResponse, error)
 	GetListingByTitle(ctx context.Context, in *GetListingByTitleRequest, opts ...grpc.CallOption) (*GetListingByTitleResponse, error)
+	GetListingByID(ctx context.Context, in *GetListingByIDRequest, opts ...grpc.CallOption) (*GetListingByIDResponse, error)
 }
 
 type catalogueClient struct {
@@ -63,6 +64,15 @@ func (c *catalogueClient) GetListingByTitle(ctx context.Context, in *GetListingB
 	return out, nil
 }
 
+func (c *catalogueClient) GetListingByID(ctx context.Context, in *GetListingByIDRequest, opts ...grpc.CallOption) (*GetListingByIDResponse, error) {
+	out := new(GetListingByIDResponse)
+	err := c.cc.Invoke(ctx, "/pad.catalogue.proto.Catalogue/GetListingByID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CatalogueServer is the server API for Catalogue service.
 // All implementations must embed UnimplementedCatalogueServer
 // for forward compatibility
@@ -70,6 +80,7 @@ type CatalogueServer interface {
 	AddListing(context.Context, *AddListingRequest) (*emptypb.Empty, error)
 	GetAllListings(context.Context, *emptypb.Empty) (*GetAllListingsResponse, error)
 	GetListingByTitle(context.Context, *GetListingByTitleRequest) (*GetListingByTitleResponse, error)
+	GetListingByID(context.Context, *GetListingByIDRequest) (*GetListingByIDResponse, error)
 	mustEmbedUnimplementedCatalogueServer()
 }
 
@@ -85,6 +96,9 @@ func (UnimplementedCatalogueServer) GetAllListings(context.Context, *emptypb.Emp
 }
 func (UnimplementedCatalogueServer) GetListingByTitle(context.Context, *GetListingByTitleRequest) (*GetListingByTitleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListingByTitle not implemented")
+}
+func (UnimplementedCatalogueServer) GetListingByID(context.Context, *GetListingByIDRequest) (*GetListingByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListingByID not implemented")
 }
 func (UnimplementedCatalogueServer) mustEmbedUnimplementedCatalogueServer() {}
 
@@ -153,6 +167,24 @@ func _Catalogue_GetListingByTitle_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Catalogue_GetListingByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListingByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CatalogueServer).GetListingByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pad.catalogue.proto.Catalogue/GetListingByID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CatalogueServer).GetListingByID(ctx, req.(*GetListingByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Catalogue_ServiceDesc is the grpc.ServiceDesc for Catalogue service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -171,6 +203,10 @@ var Catalogue_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetListingByTitle",
 			Handler:    _Catalogue_GetListingByTitle_Handler,
+		},
+		{
+			MethodName: "GetListingByID",
+			Handler:    _Catalogue_GetListingByID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
