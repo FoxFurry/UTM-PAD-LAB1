@@ -91,7 +91,7 @@ func (g *Gateway) Login(ctx *gin.Context) {
 	}
 
 	httpresponse.RespondOK(ctx, gin.H{
-		"token": token,
+		"token": token.Token,
 	})
 }
 
