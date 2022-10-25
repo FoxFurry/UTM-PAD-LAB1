@@ -26,6 +26,7 @@ type CacheClient interface {
 	AddListing(ctx context.Context, in *AddListingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetListingByTitle(ctx context.Context, in *GetListingByTitleRequest, opts ...grpc.CallOption) (*GetListingByTitleResponse, error)
 	GetListingByID(ctx context.Context, in *GetListingByIDRequest, opts ...grpc.CallOption) (*GetListingByIDResponse, error)
+	Heartbeat(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type cacheClient struct {
@@ -63,6 +64,15 @@ func (c *cacheClient) GetListingByID(ctx context.Context, in *GetListingByIDRequ
 	return out, nil
 }
 
+func (c *cacheClient) Heartbeat(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/pad.services.cache.services.cache.Cache/Heartbeat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CacheServer is the server API for Cache service.
 // All implementations must embed UnimplementedCacheServer
 // for forward compatibility
@@ -70,6 +80,7 @@ type CacheServer interface {
 	AddListing(context.Context, *AddListingRequest) (*emptypb.Empty, error)
 	GetListingByTitle(context.Context, *GetListingByTitleRequest) (*GetListingByTitleResponse, error)
 	GetListingByID(context.Context, *GetListingByIDRequest) (*GetListingByIDResponse, error)
+	Heartbeat(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCacheServer()
 }
 
@@ -85,6 +96,9 @@ func (UnimplementedCacheServer) GetListingByTitle(context.Context, *GetListingBy
 }
 func (UnimplementedCacheServer) GetListingByID(context.Context, *GetListingByIDRequest) (*GetListingByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListingByID not implemented")
+}
+func (UnimplementedCacheServer) Heartbeat(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Heartbeat not implemented")
 }
 func (UnimplementedCacheServer) mustEmbedUnimplementedCacheServer() {}
 
@@ -153,6 +167,24 @@ func _Cache_GetListingByID_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Cache_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CacheServer).Heartbeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pad.services.cache.services.cache.Cache/Heartbeat",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CacheServer).Heartbeat(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Cache_ServiceDesc is the grpc.ServiceDesc for Cache service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -171,6 +203,10 @@ var Cache_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetListingByID",
 			Handler:    _Cache_GetListingByID_Handler,
+		},
+		{
+			MethodName: "Heartbeat",
+			Handler:    _Cache_Heartbeat_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -10,6 +10,7 @@ service Cache {
   rpc AddListing(AddListingRequest) returns (google.protobuf.Empty) {}
   rpc GetListingByTitle(GetListingByTitleRequest) returns (GetListingByTitleResponse) {}
   rpc GetListingByID(GetListingByIDRequest) returns (GetListingByIDResponse) {}
+  rpc Heartbeat(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 message AddListingRequest {
