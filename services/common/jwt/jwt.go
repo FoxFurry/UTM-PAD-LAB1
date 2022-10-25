@@ -37,7 +37,7 @@ func ExtractUserFromToken(token string) (uint64, error) {
 			return nil, errors.New(fmt.Sprintf("unexpected signing method: %v", token.Header["alg"]))
 		}
 
-		return key, nil
+		return []byte(key), nil
 	})
 	if err != nil {
 		return 0, err
@@ -49,8 +49,13 @@ func ExtractUserFromToken(token string) (uint64, error) {
 			return 0, errors.New("issuers mismatch")
 		}
 
-		if sub, ok = claims[subKey].(uint64); !ok {
+		subString, ok := claims[subKey].(string)
+		if !ok {
 			return 0, errors.New("missing sub claim")
+		}
+
+		if sub, err = strconv.ParseUint(subString, 10, 64); err != nil {
+			return 0, errors.New("failed to parse sub")
 		}
 	}
 
