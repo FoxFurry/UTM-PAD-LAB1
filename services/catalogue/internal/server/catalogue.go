@@ -2,12 +2,16 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"pad/services/cache/services/cache"
 	"pad/services/catalogue/internal/store"
 	"pad/services/catalogue/services/catalogue"
+	"pad/services/common/apiauth"
 )
 
 type Catalogue struct {
@@ -16,6 +20,11 @@ type Catalogue struct {
 
 	catalogue.UnimplementedCatalogueServer
 }
+
+var (
+	catalogueKey = "Hd7h4kaz9A)j4hf6G@#ts78tynblx"
+	cacheKey     = "&k4kaHAHJb3b98a8h6jk5dsfMK8hb2s"
+)
 
 func NewCatalogueServer(db store.Catalogue, cacheService cache.CacheClient) catalogue.CatalogueServer {
 	return &Catalogue{
@@ -35,10 +44,18 @@ func (c *Catalogue) AddListing(ctx context.Context, req *catalogue.AddListingReq
 		return nil, err
 	}
 
-	if _, err := c.cache.AddListing(ctx, &cache.AddListingRequest{Listing: listingProtoToCache(req.GetListing())}); err != nil {
+	ctx = apiauth.SetRequestMetadataKey(ctx, catalogueKey)
+
+	var cacheMetadata metadata.MD
+	if _, err := c.cache.AddListing(ctx, &cache.AddListingRequest{Listing: listingProtoToCache(req.GetListing())}, grpc.Header(&cacheMetadata)); err != nil {
 		log.Printf("failed to cache listing: %v\n", err)
 		return nil, err
 	}
+
+	if err := apiauth.ValidateMetadataKey(cacheMetadata, cacheKey); err != nil {
+		return nil, fmt.Errorf("failed to authenticate cache: %w", err)
+	}
+
 	log.Printf("cached listing by title: %s\n", req.GetListing().GetTitle())
 	log.Printf("added to db listing by title: %s\n", req.GetListing().GetTitle())
 
@@ -59,7 +76,14 @@ func (c *Catalogue) GetAllListings(ctx context.Context, _ *emptypb.Empty) (*cata
 }
 
 func (c *Catalogue) GetListingByTitle(ctx context.Context, req *catalogue.GetListingByTitleRequest) (*catalogue.GetListingByTitleResponse, error) {
-	if cachedListing, err := c.cache.GetListingByTitle(ctx, &cache.GetListingByTitleRequest{Title: req.GetTitle()}); err == nil {
+	ctx = apiauth.SetRequestMetadataKey(ctx, catalogueKey)
+
+	var cacheMetadata metadata.MD
+	if cachedListing, err := c.cache.GetListingByTitle(ctx, &cache.GetListingByTitleRequest{Title: req.GetTitle()}, grpc.Header(&cacheMetadata)); err == nil {
+		if err := apiauth.ValidateMetadataKey(cacheMetadata, cacheKey); err != nil {
+			return nil, fmt.Errorf("failed to authenticate cache: %w", err)
+		}
+
 		log.Printf("found cached listing for title: %s\n", req.GetTitle())
 
 		return &catalogue.GetListingByTitleResponse{
@@ -93,7 +117,14 @@ func (c *Catalogue) GetListingByTitle(ctx context.Context, req *catalogue.GetLis
 }
 
 func (c *Catalogue) GetListingByID(ctx context.Context, req *catalogue.GetListingByIDRequest) (*catalogue.GetListingByIDResponse, error) {
-	if cachedListing, err := c.cache.GetListingByID(ctx, &cache.GetListingByIDRequest{Id: req.GetId()}); err == nil {
+	ctx = apiauth.SetRequestMetadataKey(ctx, catalogueKey)
+
+	var cacheMetadata metadata.MD
+	if cachedListing, err := c.cache.GetListingByID(ctx, &cache.GetListingByIDRequest{Id: req.GetId()}, grpc.Header(&cacheMetadata)); err == nil {
+		if err := apiauth.ValidateMetadataKey(cacheMetadata, cacheKey); err != nil {
+			return nil, fmt.Errorf("failed to authenticate cache: %w", err)
+		}
+
 		log.Printf("found cached listing for id: %d\n", req.GetId())
 
 		return &catalogue.GetListingByIDResponse{
@@ -124,6 +155,10 @@ func (c *Catalogue) GetListingByID(ctx context.Context, req *catalogue.GetListin
 	return &catalogue.GetListingByIDResponse{
 		Listing: catalogueListing,
 	}, nil
+}
+
+func (c *Catalogue) Heartbeat(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
 }
 
 func listingsStoreToProto(l []store.Listing) []*catalogue.Listing {

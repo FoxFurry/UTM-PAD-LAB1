@@ -9,5 +9,7 @@ type Config struct {
 	DBUser string `env:"DB_USER" envDefault:"root"`
 	DBPass string `env:"DB_PASS" envDefault:"temp"`
 
+	MaxConcurrentTasks uint32 `env:"MAX_CONCURRENT_TASKS" envDefault:"16"`
+
 	CacheAddress string `env:"CACHE_ADDRESS" envDefault:"localhost:23000"`
 }

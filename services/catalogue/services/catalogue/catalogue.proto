@@ -11,6 +11,7 @@ service Catalogue {
   rpc GetAllListings(google.protobuf.Empty) returns (GetAllListingsResponse) {}
   rpc GetListingByTitle(GetListingByTitleRequest) returns (GetListingByTitleResponse) {}
   rpc GetListingByID(GetListingByIDRequest) returns (GetListingByIDResponse) {}
+  rpc Heartbeat(google.protobuf.Empty) returns (google.protobuf.Empty) {} // REQ: Status Endpoint
 }
 
 message GetListingByIDRequest {

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/go-sql-driver/mysql"
@@ -64,7 +65,11 @@ func main() {
 		osError("failed to listen to tcp server: %v", err)
 	}
 
-	var opts []grpc.ServerOption
+	var opts = []grpc.ServerOption{
+		grpc.ConnectionTimeout(time.Second),               // REQ: Task timeout
+		grpc.MaxConcurrentStreams(cfg.MaxConcurrentTasks), // REQ: Concurrent tasks limit
+	}
+
 	grpcServer := grpc.NewServer(opts...)
 
 	catalogue.RegisterCatalogueServer(grpcServer, srv)
