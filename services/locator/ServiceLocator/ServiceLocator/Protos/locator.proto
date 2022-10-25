@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "ServiceLocator";
+
+import "google/protobuf/empty.proto";
+
+service Locator {
+  rpc RegisterService(RegisterServiceRequest) returns (google.protobuf.Empty); 
+  rpc GetService(GetServiceRequest) returns (GetServiceResponse);
+}
+
+message RegisterServiceRequest {
+  ServiceType type = 1;
+  string address = 2;
+}
+
+
+message GetServiceRequest {
+  ServiceType type = 1;
+}
+
+message GetServiceResponse {
+  string address = 1;
+}
+
+enum ServiceType {
+  UNKNOWN = 0;
+  CATALOGUE = 1;
+  CACHE = 2;
+}
+
+
