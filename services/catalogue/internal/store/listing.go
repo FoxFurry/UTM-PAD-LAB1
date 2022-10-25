@@ -39,7 +39,7 @@ func (c *catalogue) AddListing(ctx context.Context, l *Listing) error {
 func (c *catalogue) GetListingByTitle(ctx context.Context, title string) (*Listing, error) {
 	var buffer Listing
 
-	if err := c.db.GetContext(ctx, &buffer, `SELECT * from listings WHERE title = ?`, title); err != nil {
+	if err := c.db.GetContext(ctx, &buffer, `SELECT * FROM listings WHERE title = ?`, title); err != nil {
 		return nil, err
 	}
 
