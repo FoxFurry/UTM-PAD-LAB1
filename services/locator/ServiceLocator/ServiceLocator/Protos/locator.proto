@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 option csharp_namespace = "ServiceLocator";
+option go_package = "locator/";
 
 import "google/protobuf/empty.proto";
 
