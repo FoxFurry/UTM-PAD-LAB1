@@ -126,6 +126,10 @@ func (c *Catalogue) GetListingByID(ctx context.Context, req *catalogue.GetListin
 	}, nil
 }
 
+func (c *Catalogue) Heartbeat(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
+}
+
 func listingsStoreToProto(l []store.Listing) []*catalogue.Listing {
 	var buffer []*catalogue.Listing
 
