@@ -5,4 +5,5 @@ type Config struct {
 
 	ServiceAddress string `env:"SERVICE_ADDRESS" envDefault:"localhost:22000"`
 	CacheAddress   string `env:"CACHE_ADDRESS" envDefault:"localhost:23000"`
+	UserAddress    string `env:"USER_ADDRESS" envDefault:"localhost:24000"`
 }
