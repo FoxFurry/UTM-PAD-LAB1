@@ -4,7 +4,7 @@ type Config struct {
 	GRPCPort int `env:"GRPC_PORT" envDefault:"22000"`
 
 	DBType string `env:"DB_TYPE" envDefault:"mysql"`
-	DBName string `env:"DB_NAME" envDefault:"catalogue"`
+	DBName string `env:"DB_NAME" envDefault:"pad"`
 	DBAddr string `env:"DB_ADDR" envDefault:"localhost:3306"`
 	DBUser string `env:"DB_USER" envDefault:"root"`
 	DBPass string `env:"DB_PASS" envDefault:"temp"`
