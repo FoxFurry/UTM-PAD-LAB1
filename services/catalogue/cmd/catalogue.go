@@ -1,16 +1,20 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 	"pad/services/cache/client"
 	"pad/services/catalogue/internal/config"
@@ -18,6 +22,7 @@ import (
 	"pad/services/catalogue/internal/store"
 	"pad/services/catalogue/services/catalogue"
 	"pad/services/common/database"
+	"pad/services/locator/go-client/locator"
 )
 
 var (
@@ -39,7 +44,7 @@ func main() {
 		osError("failed to load env: %v\n", err)
 	}
 
-	//ctx := context.Background()
+	ctx := context.Background()
 
 	db, err := database.InitDB(mysql.Config{
 		DBName:               cfg.DBName,
@@ -76,9 +81,31 @@ func main() {
 	reflection.Register(grpcServer)
 
 	log.Println("Starting the server")
-	if err := grpcServer.Serve(grpcListener); err != nil {
-		osError("failed to run grpc server: %v", err)
+	go func() {
+		if err := grpcServer.Serve(grpcListener); err != nil {
+			osError("failed to run grpc server: %v", err)
+		}
+	}()
+
+	time.Sleep(time.Millisecond)
+	conn, err := grpc.Dial(cfg.LocatorAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		osError("failed to create locator dialer: %v", err)
 	}
+
+	locatorClient := locator.NewLocatorClient(conn)
+
+	if _, err := locatorClient.RegisterService(ctx, &locator.RegisterServiceRequest{
+		Type:    1,
+		Address: fmt.Sprintf("127.0.0.1:%d", cfg.GRPCPort),
+	}); err != nil {
+		osError("failed to register locator dialer: %v", err)
+	}
+
+	log.Println("Successfully registered service")
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	<-sigs
 }
 
 func usage() {

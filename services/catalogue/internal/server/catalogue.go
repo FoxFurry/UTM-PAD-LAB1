@@ -158,6 +158,7 @@ func (c *Catalogue) GetListingByID(ctx context.Context, req *catalogue.GetListin
 }
 
 func (c *Catalogue) Heartbeat(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	log.Println("Heathbeat called")
 	return &emptypb.Empty{}, nil
 }
 

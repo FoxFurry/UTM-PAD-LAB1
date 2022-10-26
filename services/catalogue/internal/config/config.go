@@ -11,5 +11,6 @@ type Config struct {
 
 	MaxConcurrentTasks uint32 `env:"MAX_CONCURRENT_TASKS" envDefault:"16"`
 
-	CacheAddress string `env:"CACHE_ADDRESS" envDefault:"localhost:23000"`
+	LocatorAddress string `env:"LOCATOR_ADDRESS" envDefault:"localhost:5000"`
+	CacheAddress   string `env:"CACHE_ADDRESS" envDefault:"localhost:23000"`
 }
