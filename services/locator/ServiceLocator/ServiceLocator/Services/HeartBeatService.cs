@@ -41,15 +41,14 @@ namespace ServiceLocator.Services
                     try
                     {
                         Console.WriteLine($"HeartBeat is checking the address {service.Address}");
-                        var channel = GrpcChannel.ForAddress(service.Address);
-                        var callInvoker = channel.CreateCallInvoker();
+                        var channel = GrpcChannel.ForAddress("http://" + service.Address);
                         var client = new Catalogue.CatalogueClient(channel);
-                        var reply = await client.HeartbeatAsync(new Empty());
+                        var reply = client.Heartbeat(new Empty());
                         service.ErrorEpochs = 0;
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"{service.Address} has failed");
+                        Console.WriteLine($"{service.Address} has failed: {e}");
                         service.ErrorEpochs++;
                         if (service.ErrorEpochs >= 3)
                         {
