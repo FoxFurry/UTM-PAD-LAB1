@@ -7,9 +7,11 @@ import (
 	"os"
 
 	"github.com/caarlos0/env/v6"
-	catalogueClient "pad/services/catalogue/client"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"pad/services/gateway/internal/config"
 	"pad/services/gateway/internal/http/server"
+	"pad/services/locator/go-client/locator"
 	userClient "pad/services/user/client"
 )
 
@@ -33,18 +35,19 @@ func main() {
 	}
 
 	//ctx := context.Background()
-
-	catalogue, err := catalogueClient.NewCatalogueClient(cfg.ServiceAddress)
+	conn, err := grpc.Dial(cfg.LocatorAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		osError("failed to connect to catalogue server: %v", err)
+		osError("failed to create locator dialer: %v", err)
 	}
+
+	locatorClient := locator.NewLocatorClient(conn)
 
 	user, err := userClient.NewUserClient(cfg.UserAddress)
 	if err != nil {
 		osError("failed to connect to user server: %v", err)
 	}
 
-	srv := server.NewGatewayServer(catalogue, user)
+	srv := server.NewGatewayServer(user, locatorClient)
 
 	log.Println("Starting the server")
 	if err := srv.Start(fmt.Sprintf("127.0.0.1:%d", cfg.Port)); err != nil {
