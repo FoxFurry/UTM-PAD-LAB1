@@ -1,16 +1,19 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	catalogueClient "pad/services/catalogue/client"
 	"pad/services/catalogue/services/catalogue"
 	"pad/services/gateway/internal/http/httperr"
 	"pad/services/gateway/internal/http/httpresponse"
 	"pad/services/gateway/internal/http/middlewares"
 	"pad/services/gateway/internal/models"
+	"pad/services/locator/go-client/locator"
 	"pad/services/user/services/user"
 )
 
@@ -20,13 +23,14 @@ var (
 
 type Gateway struct {
 	catalogue catalogue.CatalogueClient
+	locator   locator.LocatorClient
 	user      user.UserClient
 }
 
-func NewGatewayServer(catalogueClient catalogue.CatalogueClient, userClient user.UserClient) *Gateway {
+func NewGatewayServer(userClient user.UserClient, locatorClient locator.LocatorClient) *Gateway {
 	return &Gateway{
-		catalogue: catalogueClient,
-		user:      userClient,
+		user:    userClient,
+		locator: locatorClient,
 	}
 }
 
@@ -96,6 +100,8 @@ func (g *Gateway) Login(ctx *gin.Context) {
 }
 
 func (g *Gateway) CreateListing(ctx *gin.Context) {
+	g.RelocateCatalogue(ctx)
+
 	var listing models.Listing
 
 	if err := ctx.BindJSON(&listing); err != nil {
@@ -122,6 +128,8 @@ func (g *Gateway) CreateListing(ctx *gin.Context) {
 }
 
 func (g *Gateway) GetListing(ctx *gin.Context) {
+	g.RelocateCatalogue(ctx)
+
 	if id := ctx.Query("id"); id != "" {
 		log.Printf("listing queried by id\n")
 
@@ -160,4 +168,22 @@ func (g *Gateway) GetListing(ctx *gin.Context) {
 	log.Printf("GetListing called but no parameters provided\n")
 
 	httperr.Handle(ctx, httperr.NewErrorBadRequest(errGetParamMissing))
+}
+
+func (g *Gateway) RelocateCatalogue(ctx context.Context) {
+	log.Printf("Asking locator service for catalogue address")
+
+	catalogueAddress, err := g.locator.GetService(ctx, &locator.GetServiceRequest{
+		Type: 1,
+	})
+	if err != nil {
+		log.Fatal("failed to get catalogue address")
+	}
+
+	g.catalogue, err = catalogueClient.NewCatalogueClient(catalogueAddress.Address)
+	if err != nil {
+		log.Fatal("failed to connect to new catalogue server")
+	}
+
+	log.Printf("Locator successfully returned %s\n", catalogueAddress.Address)
 }
