@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Hosting;
 using ServiceLocator.Viewmodels;
@@ -43,13 +42,10 @@ namespace ServiceLocator.Services
                     {
                         Console.WriteLine($"HeartBeat is checking the address {service.Address}");
                         var channel = GrpcChannel.ForAddress(service.Address);
-                        var client = new Locator.LocatorClient(channel);
-                        
-                        if (response.StatusCode == HttpStatusCode.OK)
-                        {
-                            service.ErrorEpochs = 0;
-                        }
-
+                        var callInvoker = channel.CreateCallInvoker();
+                        var client = new Catalogue.CatalogueClient(channel);
+                        var reply = await client.HeartbeatAsync(new Empty());
+                        service.ErrorEpochs = 0;
                     }
                     catch (Exception e)
                     {
