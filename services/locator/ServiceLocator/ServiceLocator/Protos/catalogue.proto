@@ -1,0 +1,10 @@
+syntax = "proto3";
+package pad.catalogue.proto;
+option csharp_namespace = "ServiceLocator";
+option go_package = "locator/";
+
+import "google/protobuf/empty.proto";
+
+service Catalogue {
+  rpc Heartbeat(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}

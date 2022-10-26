@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <Protobuf Include="Protos\locator.proto" />
+      <Protobuf Include="Protos\catalogue.proto" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Google.Protobuf.WellKnownTypes;
+using Grpc.Net.Client;
 using Microsoft.Extensions.Hosting;
 using ServiceLocator.Viewmodels;
 
@@ -32,7 +32,7 @@ namespace ServiceLocator.Services
         }
         private async void HeartBeat()
         {
-            using var client = new HttpClient();
+            
             foreach (KeyValuePair<ServiceType, List<ServiceModel>> entry in _registryService.registryService)
             {
                 List<ServiceModel> toRemove = new List<ServiceModel>();
@@ -41,13 +41,11 @@ namespace ServiceLocator.Services
                     try
                     {
                         Console.WriteLine($"HeartBeat is checking the address {service.Address}");
-                        using HttpResponseMessage response = await client.GetAsync(service.Address);
-                        response.EnsureSuccessStatusCode();
-                        if (response.StatusCode == HttpStatusCode.OK)
-                        {
-                            service.ErrorEpochs = 0;
-                        }
-
+                        var channel = GrpcChannel.ForAddress(service.Address);
+                        var callInvoker = channel.CreateCallInvoker();
+                        var client = new Catalogue.CatalogueClient(channel);
+                        var reply = await client.HeartbeatAsync(new Empty());
+                        service.ErrorEpochs = 0;
                     }
                     catch (Exception e)
                     {
