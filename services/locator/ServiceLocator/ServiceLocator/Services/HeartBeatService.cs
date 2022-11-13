@@ -48,7 +48,7 @@ namespace ServiceLocator.Services
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"{service.Address} has failed: {e}");
+                        Console.WriteLine($"{service.Address} has failed");
                         service.ErrorEpochs++;
                         if (service.ErrorEpochs >= 3)
                         {
