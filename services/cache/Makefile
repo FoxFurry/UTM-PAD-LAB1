@@ -1,4 +1,4 @@
-.PHONY: proto-generate build run run-docker
+.PHONY: proto-generate build run run-grpc run-docker test bench
 
 proto-generate:
 	protoc \
@@ -8,11 +8,20 @@ proto-generate:
 	./services/cache/cache.proto
 
 build:
-	GOOS=linux GOARCH=amd64 go build -ldflags '-extldflags "-static"' -o build/cache cmd/cache.go
-	chmod +x build/catalogue
+	GOOS=linux GOARCH=amd64 go build -ldflags '-extldflags "-static"' -o build/cache
+	chmod +x build/cache
 
 run:
-	go run cmd/cache.go
+	go run main.go serve -p=8080
+
+run-grpc:
+	go run main.go serve-grpc
 
 run-docker: build
 	docker compose up --build
+
+test:
+	go test ./...
+
+bench:
+	go test -bench=. ./tests/
