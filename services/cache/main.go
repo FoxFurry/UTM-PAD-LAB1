@@ -4,7 +4,7 @@ Copyright © 2022 Arthur Isac isacartur@gmail.com
 */
 package main
 
-import "github.com/FoxFurry/memstore/cmd"
+import "pad/services/cache/cmd"
 
 func main() {
 	cmd.Execute()
