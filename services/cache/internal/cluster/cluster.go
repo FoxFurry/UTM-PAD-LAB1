@@ -8,10 +8,12 @@ package cluster
 import (
 	"context"
 	"errors"
-	"github.com/FoxFurry/memstore/internal/command"
+	"log"
+	"strconv"
+
 	"github.com/buraksezer/consistent"
 	"github.com/cespare/xxhash"
-	"strconv"
+	"pad/services/cache/internal/command"
 )
 
 var (
@@ -66,11 +68,16 @@ func (c *cluster) Execute(transaction []command.Command) ([]string, error) {
 			return nil, errIdConversionFailed
 		}
 
+		log.Printf("Key %s mapped to node %d\n", cmd.Key(), nodeID)
+
 		var targetNode inode
 		if _, ok := existingNodeCopies[nodeID]; ok { // if we already made a snapshot - use it
 			targetNode = existingNodeCopies[nodeID]
 		} else {
 			targetNode = c.nodes[nodeID].snapshot() // Otherwise - take a snapshot and save it to the map
+
+			log.Println("Performing shallow snapshotting")
+
 			existingNodeCopies[nodeID] = targetNode
 		}
 
@@ -83,6 +90,7 @@ func (c *cluster) Execute(transaction []command.Command) ([]string, error) {
 
 		if cmd.Type() == command.Write {
 			commandsPerNode[nodeID] = append(commandsPerNode[nodeID], cmd) // Also, our queue needs only write commands
+			log.Printf("Key %s added to execution queue\n", cmd.Key())
 		}
 	}
 
