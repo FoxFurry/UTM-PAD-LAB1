@@ -8,11 +8,12 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/FoxFurry/memstore/internal/api/httperr"
-	"github.com/FoxFurry/memstore/internal/api/model"
-	"github.com/FoxFurry/memstore/internal/api/service"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"pad/services/cache/internal/api/httperr"
+	"pad/services/cache/internal/api/model"
+	"pad/services/cache/internal/api/service"
 )
 
 // MemStore wraps memstore service into http server and provides single method: Start
