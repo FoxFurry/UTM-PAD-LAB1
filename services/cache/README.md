@@ -62,7 +62,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/FoxFurry/memstore
+   git clone https://pad/services/cache
    ```
 2. Install the dependencies
    ```shell
@@ -80,7 +80,7 @@ $ go run main.go serve --port=8000
 ```
 Port flag can be omitted, default value is 8080
 
-Documentation: https://pkg.go.dev/github.com/FoxFurry/memstore
+Documentation: https://pkg.go.dev/pad/services/cache
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -236,7 +236,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [license-shield]: https://img.shields.io/github/license/FoxFurry/memstore.svg?style=for-the-badge
-[license-url]: https://github.com/FoxFurry/memstore/blob/master/LICENSE
+[license-url]: https://pad/services/cache/blob/master/LICENSE
 
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/arthur-isac-412a6519b/
