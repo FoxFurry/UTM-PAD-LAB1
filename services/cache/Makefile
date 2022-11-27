@@ -15,7 +15,7 @@ run:
 	go run main.go serve -p=8080
 
 run-grpc:
-	go run main.go serve-grpc
+	go run main.go serve-grpc -g=23000
 
 run-docker: build
 	docker compose up --build
