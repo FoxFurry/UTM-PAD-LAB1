@@ -21,6 +21,7 @@ import (
 
 const (
 	failsToCircuitBreak = 5
+	circuitCooldown     = 10
 )
 
 var (
@@ -248,7 +249,7 @@ func (g *Gateway) closeCircuit() {
 	go func() {
 		log.Printf("Circuit cooldown started")
 
-		timer := time.NewTimer(4 * time.Second)
+		timer := time.NewTimer(circuitCooldown * time.Second)
 		<-timer.C
 
 		g.openCircuitStatus()
