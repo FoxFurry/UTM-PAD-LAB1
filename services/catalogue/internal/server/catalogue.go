@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"pad/services/cache/services/cache"
+	"pad/services/cache_old/services/cache"
 	"pad/services/catalogue/internal/store"
 	"pad/services/catalogue/services/catalogue"
 	"pad/services/common/apiauth"

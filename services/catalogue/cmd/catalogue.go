@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
-	"pad/services/cache/client"
+	"pad/services/cache_old/client"
 	"pad/services/catalogue/internal/config"
 	"pad/services/catalogue/internal/server"
 	"pad/services/catalogue/internal/store"
