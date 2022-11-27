@@ -8,12 +8,13 @@ package service
 
 import (
 	"context"
-	"github.com/FoxFurry/memstore/internal/api/httperr"
-	"github.com/FoxFurry/memstore/internal/api/model"
-	"github.com/FoxFurry/memstore/internal/cluster"
-	"github.com/FoxFurry/memstore/internal/command"
 	"net/http"
 	"strings"
+
+	"pad/services/cache/internal/api/httperr"
+	"pad/services/cache/internal/api/model"
+	"pad/services/cache/internal/cluster"
+	"pad/services/cache/internal/command"
 )
 
 // Service represents layer between web and cluster interfaces. It does only one thing: pass http model to cluster

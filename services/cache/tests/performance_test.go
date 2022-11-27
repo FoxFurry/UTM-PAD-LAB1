@@ -3,12 +3,13 @@ package tests
 import (
 	"context"
 	"fmt"
-	"github.com/FoxFurry/memstore/internal/cluster"
-	"github.com/FoxFurry/memstore/internal/command"
 	"math/rand"
 	"runtime"
 	"testing"
 	"time"
+
+	"pad/services/cache/internal/cluster"
+	"pad/services/cache/internal/command"
 )
 
 const (

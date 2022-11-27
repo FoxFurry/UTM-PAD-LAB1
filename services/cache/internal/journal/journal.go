@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/FoxFurry/memstore/internal/api/model"
 	"github.com/spf13/viper"
+	"pad/services/cache/internal/api/model"
 )
 
 type Journal interface {
