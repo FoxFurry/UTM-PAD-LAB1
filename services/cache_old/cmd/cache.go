@@ -10,9 +10,9 @@ import (
 	"github.com/caarlos0/env/v6"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"pad/services/cache/internal/config"
-	"pad/services/cache/internal/server"
-	"pad/services/cache/services/cache"
+	"pad/services/cache_old/internal/config"
+	"pad/services/cache_old/internal/server"
+	"pad/services/cache_old/services/cache"
 )
 
 var (
