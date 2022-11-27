@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	catalogueClient "pad/services/catalogue/client"
@@ -17,6 +19,10 @@ import (
 	"pad/services/user/services/user"
 )
 
+const (
+	failsToCircuitBreak = 5
+)
+
 var (
 	errGetParamMissing = fmt.Errorf("missing title or id parameter")
 )
@@ -25,12 +31,17 @@ type Gateway struct {
 	catalogue catalogue.CatalogueClient
 	locator   locator.LocatorClient
 	user      user.UserClient
+
+	circuitStatus      bool
+	circuitStatusMutex *sync.RWMutex
 }
 
 func NewGatewayServer(userClient user.UserClient, locatorClient locator.LocatorClient) *Gateway {
 	return &Gateway{
-		user:    userClient,
-		locator: locatorClient,
+		user:               userClient,
+		locator:            locatorClient,
+		circuitStatusMutex: &sync.RWMutex{},
+		circuitStatus:      true,
 	}
 }
 
@@ -100,6 +111,10 @@ func (g *Gateway) Login(ctx *gin.Context) {
 }
 
 func (g *Gateway) CreateListing(ctx *gin.Context) {
+	if !g.isCircuitOpen() {
+		httpresponse.RespondInternalError(ctx, "circuit locked")
+	}
+
 	g.RelocateCatalogue(ctx)
 
 	var listing models.Listing
@@ -110,58 +125,91 @@ func (g *Gateway) CreateListing(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := g.catalogue.AddListing(ctx, &catalogue.AddListingRequest{
-		Listing: &catalogue.Listing{
-			Title:        listing.Title,
-			Description:  listing.Description,
-			ThumbnailUrl: listing.ThumbnailURL,
-		},
-	}); err != nil {
-		log.Printf("could not create listing: %v\n", err)
+	for currentReroutes := 0; currentReroutes < failsToCircuitBreak; currentReroutes++ {
+		_, err := g.catalogue.AddListing(ctx, &catalogue.AddListingRequest{
+			Listing: &catalogue.Listing{
+				Title:        listing.Title,
+				Description:  listing.Description,
+				ThumbnailUrl: listing.ThumbnailURL,
+			},
+		})
+		if err == nil {
+			httpresponse.RespondOK(ctx, gin.H{
+				"successful": "listing created",
+			})
+			return
+		}
+
+		log.Printf("[ATTEMPT %d] could not create listing: %v\n", currentReroutes+1, err)
+		log.Printf("Attempting reroute...\n")
+		g.RelocateCatalogue(ctx)
+	}
+
+	log.Printf("ass explosion. CIRCUIT BREAKER WILL BE TRIGGERED HERE\n")
+	g.closeCircuit()
+
+	httperr.Handle(ctx, httperr.NewErrorInternal())
+}
+
+func (g *Gateway) GetListing(ctx *gin.Context) {
+	if !g.isCircuitOpen() {
+		httpresponse.RespondInternalError(ctx, "circuit locked")
+		return
+	}
+
+	g.RelocateCatalogue(ctx)
+
+	if id := ctx.Query("id"); id != "" {
+
+		uid, _ := strconv.ParseUint(id, 10, 32)
+
+		for currentReroutes := 0; currentReroutes < failsToCircuitBreak; currentReroutes++ {
+			listing, err := g.catalogue.GetListingByID(ctx, &catalogue.GetListingByIDRequest{
+				Id: uint32(uid),
+			})
+			if err == nil {
+				httpresponse.RespondOK(ctx, listing.Listing)
+
+				log.Printf("listing queried by id\n")
+
+				return
+			}
+
+			log.Printf("[ATTEMPT %d] could not get listing by id: %v\n", currentReroutes, err)
+			log.Printf("Attempting reroute...\n")
+
+			g.RelocateCatalogue(ctx)
+		}
+
+		log.Printf("Bruh... Closing circuit\n")
+		g.closeCircuit()
 		httperr.Handle(ctx, httperr.NewErrorInternal())
 		return
 	}
 
-	httpresponse.RespondOK(ctx, gin.H{
-		"successful": "listing created",
-	})
-}
-
-func (g *Gateway) GetListing(ctx *gin.Context) {
-	g.RelocateCatalogue(ctx)
-
-	if id := ctx.Query("id"); id != "" {
-		log.Printf("listing queried by id\n")
-
-		uid, _ := strconv.ParseUint(id, 10, 32)
-		listing, err := g.catalogue.GetListingByID(ctx, &catalogue.GetListingByIDRequest{
-			Id: uint32(uid),
-		})
-		if err != nil {
-			log.Printf("could not get listing by id: %v\n", err)
-
-			httperr.Handle(ctx, httperr.NewErrorNotFound())
-			return
-		}
-
-		httpresponse.RespondOK(ctx, listing.Listing)
-		return
-	}
-
 	if title := ctx.Query("title"); title != "" {
-		log.Printf("listing queried by title\n")
 
-		listing, err := g.catalogue.GetListingByTitle(ctx, &catalogue.GetListingByTitleRequest{
-			Title: title,
-		})
-		if err != nil {
-			log.Printf("could not get listing by title: %v\n", err)
+		for currentReroutes := 0; currentReroutes < failsToCircuitBreak; currentReroutes++ {
+			listing, err := g.catalogue.GetListingByTitle(ctx, &catalogue.GetListingByTitleRequest{
+				Title: title,
+			})
+			if err == nil {
+				httpresponse.RespondOK(ctx, listing.Listing)
 
-			httperr.Handle(ctx, httperr.NewErrorNotFound())
-			return
+				log.Printf("listing queried by title\n")
+
+				return
+			}
+
+			log.Printf("[ATTEMPT %d] could not get listing by title: %v\n", currentReroutes, err)
+			log.Printf("Attempting reroute...\n")
+
+			g.RelocateCatalogue(ctx)
 		}
 
-		httpresponse.RespondOK(ctx, listing.Listing)
+		log.Printf("Bruh... Closing circuit\n")
+		g.closeCircuit()
+		httperr.Handle(ctx, httperr.NewErrorInternal())
 		return
 	}
 
@@ -186,4 +234,49 @@ func (g *Gateway) RelocateCatalogue(ctx context.Context) {
 	}
 
 	log.Printf("Locator successfully returned %s\n", catalogueAddress.Address)
+}
+
+func (g *Gateway) isCircuitOpen() bool {
+	g.circuitStatusMutex.RLock()
+	defer g.circuitStatusMutex.RUnlock()
+	return g.circuitStatus
+}
+
+func (g *Gateway) closeCircuit() {
+	g.closeCircuitStatus()
+
+	go func() {
+		log.Printf("Circuit cooldown started")
+
+		timer := time.NewTimer(4 * time.Second)
+		<-timer.C
+
+		g.openCircuitStatus()
+
+		log.Printf("Circuit cooldown finished")
+	}()
+}
+
+func (g *Gateway) flipCircuitStatus() {
+	g.circuitStatusMutex.Lock()
+	defer g.circuitStatusMutex.Unlock()
+
+	log.Printf("Circuit flipped")
+	g.circuitStatus = !g.circuitStatus
+}
+
+func (g *Gateway) closeCircuitStatus() {
+	g.circuitStatusMutex.Lock()
+	defer g.circuitStatusMutex.Unlock()
+
+	log.Printf("Circuit clossed")
+	g.circuitStatus = false
+}
+
+func (g *Gateway) openCircuitStatus() {
+	g.circuitStatusMutex.Lock()
+	defer g.circuitStatusMutex.Unlock()
+
+	log.Printf("Circuit openned")
+	g.circuitStatus = true
 }
